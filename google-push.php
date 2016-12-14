@@ -3,10 +3,12 @@ trait GooglePushTrait
 {
 	public function gpush ($devicesID, $message, $authID)
 	{
-		if (!is_array($devicesID))
+		if (!is_array($devicesID)) {
 			return array(false, 'error-devices-array');
-		if (!$authID || $authID == NULL)
+		}
+		if (!$authID || $authID == NULL) {
 			return array(false, 'authorization-key-empty');
+		}
 
 			$postData = array(
 				'registration_ids' => $devicesID,
