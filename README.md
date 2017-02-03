@@ -1,2 +1,3 @@
-# google-push
-Google GCM push notification send php-script
+# FCM
+
+Google FCM push notification send php-script
