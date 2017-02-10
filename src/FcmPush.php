@@ -1,4 +1,5 @@
 <?php
+use GuzzleHttp\Psr7\Request;
 
 /**
  * Class FcmPush
@@ -11,53 +12,63 @@ class FcmPush
      * Send message to mobile device
      *
      * @param $devices
-     * @param $message
-     * @param $authID
-     * @return mixed
+     * @param string $message
+     * @param string $authID
+     * @return string
      */
-    public function send($devices, $message, $authID)
+    public static function send($devices, string $message, string $authID) : string
     {
+        if (!$devices) {
+            return json_encode(array(false, 'List of devices can not be empty.'));
+        }
+        if (!$authID || $authID === NULL) {
+            return json_encode(array(false, 'Authorization key empty.'));
+        }
+
         $headers = [
             'Authorization' => 'key = ' . $authID,
             'Content-Type'  => 'application/json'
         ];
 
-        $fields = [
+        $data = [
             'to'           => $devices,
             'priority'     => 'high',
 //            'notification' => $message,
             'data'         => array('message' => $message)
         ];
 
-        $result = self::curl($headers, $fields);
+//        $result = self::request($headers, json_encode($data));
+        $result = new Request('POST', self::URL, $headers, json_encode($data));
 
         return $result;
     }
 
     /**
+     * Request to Google FCM
+     *
      * @param array $headers
-     * @param array $fields
-     * @return mixed
+     * @param string $data
+     * @return string
      */
-    private function curl($headers, $fields)
-    {
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, self::URL);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-
-        $result = curl_exec($ch);
-
-        if ($result === FALSE) {
-            die('Curl failed: ' . curl_error($ch));
-        }
-        curl_close($ch);
-
-        return $result;
-    }
+//    private function request(array $headers, string $data)
+//    {
+//        $ch = curl_init();
+//
+//        curl_setopt($ch, CURLOPT_URL, self::URL);
+//        curl_setopt($ch, CURLOPT_POST, true);
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+//        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+//        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+//
+//        $result = curl_exec($ch);
+//
+//        if ($result === FALSE) {
+//            die('Curl failed: ' . curl_error($ch));
+//        }
+//        curl_close($ch);
+//
+//        return $result;
+//    }
 }
