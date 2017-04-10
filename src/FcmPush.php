@@ -26,8 +26,8 @@ class FcmPush
         }
 
         $headers = [
-            'Authorization' => 'key = ' . $authID,
-            'Content-Type'  => 'application/json'
+            'Authorization: key = ' . $authID,
+            'Content-Type: application/json'
         ];
 
         $data = [
