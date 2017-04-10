@@ -40,9 +40,9 @@ class FcmPush
             'data'         => array('message' => $message)
         ];
         
-        $client = new GuzzleHttp\Client();
-        $request = new Request('POST', self::URL, $headers, json_encode($data));
-        $response = $client->send($request);
+        $client = new Client();
+        //$request = new Request('POST', self::URL, $headers, json_encode($data));
+        $response = $client->send('POST', self::URL, ["headers" => $headers, $data]);
 
         return $response;
     }
