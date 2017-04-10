@@ -10,14 +10,16 @@ class FcmPush
     /**
      * Send message to mobile devices.
      *
-     * @param string|array $devices
+     * @param array $devices
      * @param string $message
      * @param string $authID
      * @param string $priority
      * @return string
      */
-    public static function send($devices, string $message, string $authID, string $priority = 'high')
+    public static function send(array $devices, string $message, string $authID, string $priority = 'high')
     {
+        $response = ["devices" => count($devices), "success" => 0, "failure" => 0];
+        
         if (!$devices) {
             return json_encode(array(false, 'List of devices can not be empty.'));
         }
@@ -31,12 +33,27 @@ class FcmPush
         ];
 
         $data = [
-            'to'           => $devices,
             'priority'     => $priority,
 //            'notification' => $message,
             'data'         => array('message' => $message)
         ];
         
+        foreach ($devices as $device) {
+            $data['to'] = $device;
+            
+            $request = json_decode(self::request($headers, $data));
+            if ($request['success'] > 0) {
+                $response['success']++;
+            } else {
+                $response['failure']++;
+            }
+        }
+
+        return $response;
+    }
+    
+    private static function request($headers, $data)
+    {
         $ch = curl_init(self::URL);
 
         curl_setopt($ch, CURLOPT_POST, true);
@@ -45,12 +62,13 @@ class FcmPush
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        
         $response = curl_exec($ch);
         if ($result === FALSE) {
             die('Curl failed: ' . curl_error($ch));
         }
         curl_close($ch);
-
+        
         return $response;
     }
 }
