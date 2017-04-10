@@ -1,8 +1,5 @@
 <?php
 
-use GuzzleHttp\Psr7\Request,
-    GuzzleHttp\Client;
-
 /**
  * Class FcmPush
  */
@@ -17,7 +14,7 @@ class FcmPush
      * @param string $message
      * @param string $authID
      * @param string $priority
-     * @return \GuzzleHttp\Client
+     * @return string
      */
     public static function send($devices, string $message, string $authID, string $priority = 'high')
     {
@@ -40,9 +37,19 @@ class FcmPush
             'data'         => array('message' => $message)
         ];
         
-        $client = new Client();
-        //$request = new Request('POST', self::URL, $headers, json_encode($data));
-        $response = $client->request('POST', self::URL, ["headers" => $headers, $data]);
+        $ch = curl_init(self::URL);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        $response = curl_exec($ch);
+        if ($result === FALSE) {
+            die('Curl failed: ' . curl_error($ch));
+        }
+        curl_close($ch);
 
         return $response;
     }
