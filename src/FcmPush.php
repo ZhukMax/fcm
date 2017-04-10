@@ -1,5 +1,7 @@
 <?php
-use GuzzleHttp\Psr7\Request;
+
+use GuzzleHttp\Psr7\Request,
+    GuzzleHttp\Client;
 
 /**
  * Class FcmPush
@@ -14,9 +16,10 @@ class FcmPush
      * @param string|array $devices
      * @param string $message
      * @param string $authID
-     * @return \GuzzleHttp\Psr7\Request
+     * @param string $priority
+     * @return \GuzzleHttp\Client
      */
-    public static function send($devices, string $message, string $authID)
+    public static function send($devices, string $message, string $authID, string $priority = 'high')
     {
         if (!$devices) {
             return json_encode(array(false, 'List of devices can not be empty.'));
@@ -32,12 +35,15 @@ class FcmPush
 
         $data = [
             'to'           => $devices,
-            'priority'     => 'high',
+            'priority'     => $priority,
 //            'notification' => $message,
             'data'         => array('message' => $message)
         ];
-        $result = new Request('POST', self::URL, $headers, json_encode($data));
+        
+        $client = new GuzzleHttp\Client();
+        $request = new Request('POST', self::URL, $headers, json_encode($data));
+        $response = $client->send($request);
 
-        return $result;
+        return $response;
     }
 }
