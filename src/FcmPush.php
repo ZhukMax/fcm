@@ -42,7 +42,7 @@ class FcmPush
         
         $client = new Client();
         //$request = new Request('POST', self::URL, $headers, json_encode($data));
-        $response = $client->send('POST', self::URL, ["headers" => $headers, $data]);
+        $response = $client->request('POST', self::URL, ["headers" => $headers, $data]);
 
         return $response;
     }
