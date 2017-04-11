@@ -41,7 +41,7 @@ class FcmPush
         foreach ($devices as $device) {
             $data['to'] = $device;
             
-            $request = json_decode(self::request($headers, $data));
+            $request = (array)json_decode(self::request($headers, $data));
             if ($request['success'] > 0) {
                 $response['success']++;
             } else {
